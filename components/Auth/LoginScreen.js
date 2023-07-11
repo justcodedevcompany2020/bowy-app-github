@@ -1,22 +1,29 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TextInput, StatusBar, ScrollView } from 'react-native';
+import {Text, View, StyleSheet, TouchableOpacity, TextInput, StatusBar, ScrollView, Linking} from 'react-native';
 // import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContext } from "../AuthContext/context"
 import Svg, { Path, Rect } from 'react-native-svg';
 // import GoogleComponent from '../SocialLinks/GoogleComponent'
+import {
+    SafeAreaView,
+    SafeAreaProvider,
+    SafeAreaInsetsContext,
+    useSafeAreaInsets,
+    initialWindowMetrics,
+} from 'react-native-safe-area-context';
 
 
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            email: 'yurbagdasaryan96@gmail.com',
-            password: 'asdasd',
+            // email: 'yurbagdasaryan96@gmail.com',
+            // password: 'asdasd',
 
-            // email: '',
-            // password: '',
+            email: '',
+            password: '',
             emailError: false,
             passwordError: false,
             location: '',
@@ -56,7 +63,7 @@ export default class App extends Component {
         })
             .then(response => response.json())
             .then(async (res) => {
-                // console.log(res, "login")
+                console.log(res, "login")
                 try {
                     if (res.data) {
                         if (res.data.email) {
@@ -154,12 +161,11 @@ export default class App extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
 
                 <View style={styles.headerComponent}>
                     <Text style={styles.inputText}>
-                        Вход или {"\n"}
-                        регистрация
+                        Вход
                     </Text>
                 </View>
 
@@ -187,7 +193,7 @@ export default class App extends Component {
                             <TextInput
                                 value={this.state.email}
                                 onChangeText={(email) => this.setState({ email })}
-                                placeholder='Логин'
+                                placeholder='Почта'
                                 style={styles.input}
                                 underlineColorAndroid="transparent"
                             />
@@ -238,17 +244,32 @@ export default class App extends Component {
                                 }
                             </TouchableOpacity>
                             <Text style={[styles.privacy_policy_text]}>
-                                Согласен с правилами
+                                Согласен с <TouchableOpacity
+                                onPress={() => {
+                                    Linking.openURL('https://bowy.ru/policy.pdf')
+                                }}
+                            ><Text style={[styles.privacy_policy_text_bold,{position:'relative', top:2}]}> правилами
+                            </Text>
+                            </TouchableOpacity>
 
-                                <View style={{paddingRight:5}}></View>
-                                <Text style={[styles.privacy_policy_text_bold]}>
-                                     и политикой конфиденциальности
-                                </Text>
+                                {/*<View style={{paddingRight:5}}></View>*/}
+                                <TouchableOpacity
+                                    style={{paddingTop:3}}
+                                    onPress={() => {
+                                        Linking.openURL('https://bowy.ru/policy.pdf')
+                                    }}
+                                ><Text style={[styles.privacy_policy_text_bold]}>и политикой конфиденциальности
+                                    </Text>
+                                </TouchableOpacity>
+
                             </Text>
 
 
                         </View>
 
+                        <TouchableOpacity onPress= { () => {  }}>
+
+                        </TouchableOpacity>
 
                         <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linearGradient}>
 
@@ -266,7 +287,7 @@ export default class App extends Component {
                             Еще нет аккаунта?
                         </Text>
 
-                        <TouchableOpacity style={styles.goToRegister} onPress={() => this.goToRegister()}>
+                        <TouchableOpacity style={styles.goToRegister} onPress={() => this.goToRegister() }>
                             <Text style={styles.goToRegisterText}>Зарегистрироваться</Text>
                         </TouchableOpacity>
 
@@ -318,7 +339,7 @@ export default class App extends Component {
                         {/* <GoogleComponent /> */}
                     </ScrollView>
                 </View>
-            </View>
+            </SafeAreaView>
         );
     }
 }
@@ -425,7 +446,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
         color: '#000000',
-        paddingLeft: 5,
+        // paddingLeft: 5,
 
     },
 

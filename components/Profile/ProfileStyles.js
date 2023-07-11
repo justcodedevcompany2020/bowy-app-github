@@ -239,7 +239,7 @@ const ProfileStyles = StyleSheet.create({
         height: 16,
         marginRight: 10,
         position:'relative',
-        top: -5
+        // top: -5
     },
     profileMail: {
         width: 17,
@@ -271,11 +271,11 @@ const ProfileStyles = StyleSheet.create({
     userInfoItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 15,
+        // marginBottom: 15,
         width: "100%",
-        padding: 5
-
-
+        paddingLeft: 15,
+        padding:15
+        // paddingHorizontal:22
     },
 
     profileUserInfo: {

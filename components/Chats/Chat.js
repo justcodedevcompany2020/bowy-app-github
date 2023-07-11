@@ -57,7 +57,7 @@ export default class Chat extends Component {
         const { userChatData } = this.state
         const filteredProducts = []
 
-        if (value.trim().length > 1) {
+        if (value.trim().length > 0) {
 
             console.log(userChatData, 'userChatData')
 
@@ -68,7 +68,7 @@ export default class Chat extends Component {
                 this.setState({ userChatData: filteredProducts })
             })
 
-        } else if (value.trim().length === 1) {
+        } else if (value.trim().length === 0) {
             this.setState({ userChatData: this.state.userChatDataFirst })
             console.log(userChatData, 'dgr')
         }
@@ -149,7 +149,9 @@ export default class Chat extends Component {
         const { navigation } = this.props;
 
         // BackHandler.addEventListener('hardwareBackPress', this._onBackPress)
-        // this.handleGetChat();
+        clearInterval(this.interval);
+
+        this.handleGetChat();
 
         this.focusListener = navigation.addListener("focus", () => {
             clearInterval(this.interval);
@@ -193,7 +195,7 @@ export default class Chat extends Component {
                             underlineColorAndroid="transparent"
                             placeholder="Поиск по сообщениям"
                             value={this.state.searchValue}
-                            onChangeText={(text) => {
+                            onChangeText={async (text) => {
                                 this.setState({ searchValue: text })
                                 this.searchItems(text)
                             }}
@@ -203,6 +205,15 @@ export default class Chat extends Component {
                 </View>
 
                 <ScrollView style={ChatStyles.scrollView} >
+
+                    {this.state.userChatData.length == 0 &&
+
+                        <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+
+                            <Text>Ничего не найденно.</Text>
+
+                        </View>
+                    }
 
                     {this.state.userChatData.map((result) => (
 

@@ -9,13 +9,21 @@ import {
     ScrollView,
     Modal,
     Animated,
-    Alert
+    Alert, Linking
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 // import { AntDesign } from '@expo/vector-icons';
 import Svg, { Path } from "react-native-svg"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from 'expo-location'
+
+import {
+    SafeAreaView,
+    SafeAreaProvider,
+    SafeAreaInsetsContext,
+    useSafeAreaInsets,
+    initialWindowMetrics,
+} from 'react-native-safe-area-context';
 
 
 
@@ -41,19 +49,30 @@ export default class App extends Component {
             where: { lat: null, lng: null },
             error: null,
             location: '',
-            disableButton: false
+            disableButton: false,
+            privacy_policy: false,
+            privacy_policy_error:false,
+            privacy_policy_error_text: ''
         };
     }
 
 
     handleRegistration = async () => {
 
-        await  this.setState({
-            disableButton: true
-        })
+        // await this.setState({
+        //     disableButton: true
+        // })
 
-        const { name, password, email, number, password_confirmation, location } = this.state;
+        const { name, password, email, number, password_confirmation, location,privacy_policy, privacy_policy_error, privacy_policy_error_text } = this.state;
+        if (!privacy_policy)
+        {
+            this.setState({
+                privacy_policy_error: true,
+                privacy_policy_error_text: ''
+            });
 
+            return false;
+        }
 
         fetch('https://bowy.ru/api/registration', {
             method: "POST",
@@ -74,8 +93,10 @@ export default class App extends Component {
             .then((response) => {
 
                 console.log(response, "res")
-
-                if (response.data) {
+                // this.setState({
+                //     disableButton: false
+                // })
+                if (response.success === false && response.message == 'Validation errors' ) {
 
                     if (response.data.name) {
                         this.setState({ name_error: response.data.name[0] })
@@ -84,7 +105,11 @@ export default class App extends Component {
                     }
 
                     if (response.data.email) {
-                        this.setState({ email_error: response.data.email[0] })
+                        if (response.data.email[0] == 'Повторяющаяся запись для электронной почты') {
+                            this.setState({ email_error: 'Данная почта уже используется' })
+                        } else {
+                            this.setState({ email_error: response.data.email[0] })
+                        }
                     } else {
                         this.setState({ email_error: null, })
                     }
@@ -107,7 +132,8 @@ export default class App extends Component {
                         this.setState({ password_confirmation_error: null, })
                     }
 
-                } else if (response.success) {
+                }
+                else if (response.hasOwnProperty('token')) {
 
                     this.setState({
                         name: '',
@@ -143,11 +169,9 @@ export default class App extends Component {
                 }
 
 
-                this.setState({
-                    disableButton: false
-                })
 
-                console.log(response.user?.location, 'dsdsdsd');
+
+                // console.log(response.user?.location, 'dsdsdsd');
             })
             .catch(e => {
                 console.log(e, "catch error")
@@ -207,11 +231,10 @@ export default class App extends Component {
         return (
 
 
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
 
                 <Text style={styles.inputText}>
-                    Вход или {"\n"}
-                    регистрация
+                    Регистрация
                 </Text>
 
                 <ScrollView
@@ -225,7 +248,7 @@ export default class App extends Component {
                             <TextInput
                                 value={this.state.name}
                                 onChangeText={(name) => this.setState({ name })}
-                                placeholder='ФИО'
+                                placeholder='Ник'
                                 maxLength={45}
                                 style={styles.input}
                                 underlineColorAndroid="transparent"
@@ -243,7 +266,7 @@ export default class App extends Component {
                             <TextInput
                                 value={this.state.name}
                                 onChangeText={(name) => this.setState({ name })}
-                                placeholder='ФИО'
+                                placeholder='Ник'
                                 maxLength={45}
                                 style={styles.errorMessage}
                                 underlineColorAndroid="transparent"
@@ -383,13 +406,57 @@ export default class App extends Component {
                             />
                         </View>
                     }
+
+
+                    <View style={styles.privacy_policy_checkbox_input}>
+                        <TouchableOpacity
+                            style={[styles.inputRadio, this.state.privacy_policy_error &&  {borderWidth:1, borderColor: 'red'}]}
+                            onPress={()=> {
+                                this.setState({
+                                    privacy_policy: !this.state.privacy_policy,
+                                    privacy_policy_error:false
+                                })
+                            }}>
+                            {this.state.privacy_policy &&
+                                <View style={styles.activeRadioRound}>
+
+                                    <Svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 83 65" fill="none">
+                                        <Path d="M73.333.667L28 46 9.333 27.333 0 36.667l28 28L82.667 10 73.333.667z" fill="white"/>
+                                    </Svg>
+
+                                </View>
+                            }
+                        </TouchableOpacity>
+                        <Text style={[styles.privacy_policy_text]}>
+                            Согласен с <TouchableOpacity
+                            onPress={() => {
+                                Linking.openURL('https://bowy.ru/policy.pdf')
+                            }}
+                        ><Text style={[styles.privacy_policy_text_bold,{position:'relative', top:2}]}> правилами
+                        </Text>
+                        </TouchableOpacity>
+
+                            {/*<View style={{paddingRight:5}}></View>*/}
+                            <TouchableOpacity
+                                style={{paddingTop:3}}
+                                onPress={() => {
+                                    Linking.openURL('https://bowy.ru/policy.pdf')
+                                }}
+                            ><Text style={[styles.privacy_policy_text_bold]}>и политикой конфиденциальности
+                            </Text>
+                            </TouchableOpacity>
+
+                        </Text>
+
+
+                    </View>
+
                     <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linearGradient}>
 
                         <TouchableOpacity style={styles.loginButton}
                           onPress={() => {
                               if (!this.state.disableButton) {
                                   this.handleRegistration()
-
                               }
                           }}
                         >
@@ -406,7 +473,7 @@ export default class App extends Component {
                         <Text style={styles.goToRegisterText}>Войти</Text>
                     </TouchableOpacity>
                 </ScrollView>
-            </View>
+            </SafeAreaView>
         );
     }
 }
@@ -511,7 +578,36 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32
     },
+    privacy_policy_text_bold: {
+        fontWeight: 'bold',
+        fontSize: 12,
+        color: '#000000',
+        // paddingLeft: 5,
 
+    },
+    privacy_policy_checkbox_input: {
+        flexDirection: 'row',
+        width:'100%',
+        paddingHorizontal: '10%',
+        marginBottom:15
+    },
+    inputRadio: {
+        backgroundColor: "#E4E4E4",
+        width: 28,
+        height: 28,
+        borderRadius: 4,
+        justifyContent: "center",
+        alignItems: "center",
+        marginRight: 10,
+    },
+    activeRadioRound:{
+        width: 28,
+        height: 28,
+        backgroundColor: "#2EB6A5",
+        borderRadius: 4,
+        alignItems: "center",
+        justifyContent: "center",
+    },
 
 });
 

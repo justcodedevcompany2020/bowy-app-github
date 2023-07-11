@@ -195,13 +195,13 @@ export default class EditCar extends Component {
 
 
         let pickerResult = await ImagePicker.launchImageLibraryAsync();
-        if (pickerResult.cancelled === true) {
+        if (pickerResult.canceled === true) {
             return;
         }
 
 
         pickerResult.id = pickerResult.uri
-        let res = pickerResult.uri.split('.');
+        let res = pickerResult.assets[0].uri.split('.');
         let type = res[res.length - 1];
 
 
@@ -436,8 +436,6 @@ export default class EditCar extends Component {
                 });
 
             })
-
-
 
 
             form.append("headline", this.state.title)

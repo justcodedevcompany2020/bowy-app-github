@@ -85,7 +85,7 @@ const feedsStyles = StyleSheet.create({
         marginLeft: 17
     },
     modalContainer: {
-        marginTop: 22,
+        marginTop: 60,
         marginRight: 22,
         marginLeft: 22,
     },

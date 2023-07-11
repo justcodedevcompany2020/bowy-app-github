@@ -3,7 +3,15 @@ import React, {Component} from 'react';
 import {Text, View, StyleSheet, TouchableOpacity, TextInput, Alert, StatusBar} from 'react-native';
 import {LinearGradient} from 'expo-linear-gradient';
 import {editCarStyles} from "../EditCar/EditCarStyles";
+import Svg, {Path} from "react-native-svg";
 
+import {
+    SafeAreaView,
+    SafeAreaProvider,
+    SafeAreaInsetsContext,
+    useSafeAreaInsets,
+    initialWindowMetrics,
+} from 'react-native-safe-area-context';
 
 export default class EditPassword extends Component {
     constructor(props) {
@@ -84,7 +92,9 @@ export default class EditPassword extends Component {
                         this.setState({successMessage: false})
                         this.props.navigation.navigate("Login")
                     }, 2000)
-                } else if (res.status === false) {
+                } else if (res.success === false && res.message == 'Code is not right') {
+
+                    this.setState({confirmCodeError: "Не верный код"})
 
                 }
             })
@@ -92,15 +102,28 @@ export default class EditPassword extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
+            <SafeAreaView style={styles.container}>
+
+                <TouchableOpacity
+                    style={{backgroundColor:'white', width:'100%'}}
+                    onPress={() => {
+                        this.props.navigation.goBack()
+                    }}
+                >
+                    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <Path d="M21.75 12H6m0 0l6.3-7M6 12l6.3 7" stroke="#000" strokeLinecap="round" strokeLinejoin="round"/>
+                    </Svg>
+                </TouchableOpacity>
+
                 <Text style={styles.inputText}>
-                    Восстановить пароль?
+                    Новый пароль
                 </Text>
 
 
                 {this.state.successMessage &&
-                <Text style={styles.successMessageStyle}>Ваш пароль успешно изменен!</Text>}
-                <View style={styles.inputComponent}>
+                    <Text style={styles.successMessageStyle}>Ваш пароль успешно изменен!</Text>
+                }
+                    <View style={styles.inputComponent}>
 
 
                     <View style={{alignItems: "center", justifyContent: "flex-start", width: "100%"}}>
@@ -193,21 +216,24 @@ export default class EditPassword extends Component {
                 <View>
 
                 </View>
-            </View>
+            </SafeAreaView>
         )
     }
 }
 
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
         height: "100%",
         alignItems: 'center',
-        justifyContent: 'center',
+        // justifyContent: 'center',
         backgroundColor: 'white',
-        paddingTop: StatusBar.currentHeight + 5,
+        // paddingTop: StatusBar.currentHeight + 5,
         paddingHorizontal: 30,
+        paddingTop:10
+
     },
     inputText: {
         width: "100%",
@@ -241,6 +267,8 @@ const styles = StyleSheet.create({
     successMessageStyle: {
         color: "green",
         fontSize: 15,
-        textAlign: "center"
+        textAlign: "center",
+        marginBottom: 10
+
     },
 })

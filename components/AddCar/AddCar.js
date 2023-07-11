@@ -107,7 +107,7 @@ export default class AddCar extends Component {
             car_age_error: false,
             gear_box_error: false,
             car_category_error: false,
-
+            disable_button: false
         }
     }
 
@@ -334,17 +334,20 @@ export default class AddCar extends Component {
 
             const form = new FormData();
 
+            console.log(selectedImages, 'selectedImages')
+
             selectedImages.forEach((item, index)=>{
+                console.log(item["key"], 'selectedImages')
 
                 form.append(`images[]`, {
-                    uri: item["uri"],
+                    uri: item["key"],
                     type: 'image/jpg',
                     name: 'image'+index+'.jpg',
                 });
 
             })
 
-            console.log(form, 'form')
+            // console.log(form, 'form')
 
 
             if (title === '' || !regionCategoryValue || !cityListValue || price === '' || address === '' ||
@@ -388,6 +391,9 @@ export default class AddCar extends Component {
 
             console.log(regionCategoryValue, 'dwdwdw')
 
+            await this.setState({
+                disable_button: true
+            })
             // return false;
 
             let userToken = await AsyncStorage.getItem("userToken")
@@ -405,11 +411,16 @@ export default class AddCar extends Component {
 
             })
                 .then(response => response.json())
-                .then((res) => {
+                .then(async (res) => {
 
                     console.log(res, "res")
 
+                    await this.setState({
+                        disable_button: false
+                    })
+
                     if (res.success) {
+
                         this.setState({
                             selectedImages: [],
                             carCategoryValue: null,
@@ -460,7 +471,7 @@ export default class AddCar extends Component {
         })
     }
     componentWillUnmount() {
-        console.log("Gago")
+        console.log("")
     }
 
     render() {
@@ -782,7 +793,14 @@ export default class AddCar extends Component {
 
                 <View style={{width: '100%', flexDirection:'row', justifyContent:'center', paddingVertical: 10, }}>
 
-                    <TouchableOpacity style={{maxWidth: 315, width: '100%'}} onPress={() => {this.addAnnouncement()}}>
+                    <TouchableOpacity
+                        style={[{maxWidth: 315, width: '100%'}, this.state.disable_button ? {opacity:0.5} : {}]}
+                        onPress={() => {
+                            if(this.state.disable_button === false) {
+                                this.addAnnouncement()
+                            }
+                        }}
+                    >
                         <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={editCarStyles.linearGradient}>
                             <Text style={{textAlign: 'center', color: 'white'}}>
                                 Разместить Объявление

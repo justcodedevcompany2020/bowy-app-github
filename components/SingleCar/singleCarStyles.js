@@ -64,7 +64,7 @@ const singleCarStyles = StyleSheet.create({
         marginBottom:17
     },
     callButton:{
-        width:"45%",
+        width: "45%",
         height:50,
         borderRadius:8
     },

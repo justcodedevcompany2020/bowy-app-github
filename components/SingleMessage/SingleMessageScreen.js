@@ -142,7 +142,7 @@ export default class SingleMessage extends Component {
         }
 
         let pickerResult = await ImagePicker.launchImageLibraryAsync();
-        if (pickerResult.cancelled === true) {
+        if (pickerResult.canceled === true) {
             return;
         }
         // let { selectedImages } = this.state;
@@ -249,20 +249,20 @@ export default class SingleMessage extends Component {
             quality: 1,
         });
         console.log(result, 'result')
-        if (!result.cancelled) {
+        if (!result.canceled) {
 
 
             this.setState({
-                user_image: result.uri
+                user_image: result.assets[0].uri
             })
 
-            let res = result.uri.split('.');
+            let res = result.assets[0].uri.split('.');
             let type = res[res.length - 1];
 
 
             let form = new FormData();
             form.append("file", {
-                uri: result.uri,
+                uri: result.assets[0].uri,
                 type: 'image/jpg',
                 name: 'photo.jpg',
             });
@@ -292,7 +292,7 @@ export default class SingleMessage extends Component {
                         this.handleGetMessages()
 
                     }
-                }).done();
+                });
         }
     }
 

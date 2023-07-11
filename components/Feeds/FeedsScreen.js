@@ -20,7 +20,7 @@ import {feedsStyles} from './feedsStyles';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Ionicons} from '@expo/vector-icons';
 
-
+import PaginationCircle from "../../assets/Svg/paginationCircle";
 
 const sortByValues = [
     {
@@ -96,7 +96,11 @@ export default class FeedsScreenComponent extends Component {
             searchValue: "",
             isFilterUsed: false,
             current_page: 1,
-            nextButton: false
+            nextButton: false,
+            isRefreshing: false,
+            isLoading: false,
+            isEndReached: false,
+
         };
     }
 
@@ -195,8 +199,7 @@ export default class FeedsScreenComponent extends Component {
                 .then((response) => response.json())
                 .then((res) => {
 
-                    console.log(res, 'res.product_data222222222222222222222222222222222')
-
+                    console.log(res.product_data.data)
                         this.setState({
                             loggedUserID: userID,
                             products: res.product_data.data,
@@ -489,12 +492,7 @@ export default class FeedsScreenComponent extends Component {
             let userID = await AsyncStorage.getItem("loggedUserID")
             let userToken = await AsyncStorage.getItem('userToken');
             let {current_page} = this.state;
-
-            // console.log(userID, 'userid feeds screen');
-
             let AuthStr = 'Bearer ' + userToken;
-
-            // console.log(AuthStr, 'token feeds screen');
 
             let url = `https://bowy.ru/api/allproducts?page=${current_page}`
 
@@ -513,8 +511,8 @@ export default class FeedsScreenComponent extends Component {
             // }
 
 
-            if (filterSortBy) {
-
+            if (filterSortBy)
+            {
                 if (filterSortBy == 'date')
                 {
                     url += `&sort_by_max_date=true`;
@@ -529,16 +527,12 @@ export default class FeedsScreenComponent extends Component {
                 }
             }
 
-
             if (minCost.length > 0) {
                 url += `&between_min_price=${minCost}`;
             }
             if (maxCost.length > 0) {
                 url += `&between_max_price=${maxCost}`;
             }
-
-            // url += `&sort_by_price_asc=true`;
-
 
             console.log(url, 'urlurlurlurlurlurlurl');
 
@@ -552,34 +546,21 @@ export default class FeedsScreenComponent extends Component {
             })
                 .then((response) => response.json())
                 .then((res) => {
-
                         console.log(res, 'filterItems')
-
                         this.setState({
                             loggedUserID: userID,
                             products: res.product_data.data,
                             products1: res.product_data.data,
                             nextButton: res.product_data.next_page_url ? true : false
                         })
-
-                        // console.log(res.product_data,'product data feeds screen');
                     }
                 )
                 .catch((e) => {
                 })
 
         } catch (e) {
+
         }
-
-
-        // try {
-        //     await this.setState({products: JSON.parse(JSON.stringify(this.state.products1))})
-        //     await this.check()
-        //     await this.setState({filterModalVisible: false, isFilterUsed: true})
-        // } catch (e) {
-        //     ///
-        // }
-
 
     }
 
@@ -592,7 +573,6 @@ export default class FeedsScreenComponent extends Component {
             this.getProducts()
             this.getFavouriteItems()
         });
-
     }
 
 
@@ -602,7 +582,6 @@ export default class FeedsScreenComponent extends Component {
         if (this.focusListener) {
             this.focusListener();
         }
-
     }
 
     clearFilter = async () => {
@@ -624,16 +603,14 @@ export default class FeedsScreenComponent extends Component {
 
     openFilter  = async () => {
 
-
-
     }
 
 
     render() {
         return (
             <SafeAreaView style={feedsStyles.container}>
-                {/*Search Filter form*/}
 
+                {/*Search Filter form*/}
                 <Modal
                     animationType="slide"
                     transparent={false}
@@ -644,20 +621,20 @@ export default class FeedsScreenComponent extends Component {
 
                         <View style={feedsStyles.modalContainer2}>
                             <Text style={feedsStyles.modalContainerTitle}>Фильтры</Text>
-
                             <TouchableOpacity onPress={() => {
                                 this.setState({filterModalVisible: false})
                                 this.setState({products: this.state.products1})
                             }}>
-                                <Image style={feedsStyles.closeModal}
-                                       source={require('../../assets/img/close_modal.png')}/>
+                                <Image
+                                    style={feedsStyles.closeModal}
+                                    source={require('../../assets/img/close_modal.png')}
+                                />
                             </TouchableOpacity>
 
                         </View>
 
 
                         <ScrollView
-
                             showsHorizontalScrollIndicator={false}
                             showsVerticalScrollIndicator={false}
                             style={feedsStyles.filterFieldsWrapper}
@@ -690,8 +667,6 @@ export default class FeedsScreenComponent extends Component {
                                     listMode="MODAL"
                                 />
 
-                                {/*<Text>{this.state.carCategoryValue}</Text>*/}
-
                                 <DropDownPicker
                                     open={this.state.regionCategoryOpen}
                                     value={this.state.regionCategoryValue}
@@ -712,7 +687,6 @@ export default class FeedsScreenComponent extends Component {
                                         borderTopRightRadius: 10,
                                         borderTopLeftRadius: 10,
                                         borderBottomWidth: 1,
-
                                     }}
                                     language="RU"
                                     placeholderStyle={{color: "grey",}}
@@ -757,34 +731,7 @@ export default class FeedsScreenComponent extends Component {
                                     listMode="MODAL"
                                     zIndex={8}
                                     disabled={!!!this.state.regionCategoryValue}
-
                                 />
-
-                                {/*<TextInput*/}
-                                {/*    style={[feedsStyles.costCategory, {*/}
-                                {/*        borderBottomRightRadius: 15,*/}
-                                {/*        borderBottomLeftRadius: 15,*/}
-                                {/*        marginBottom: 15,*/}
-                                {/*    }]}*/}
-                                {/*    editable={!!this.state.cityListValue ? true : false}*/}
-                                {/*    underlineColorAndroid="transparent"*/}
-                                {/*    placeholder="Улица"*/}
-                                {/*    value={this.state.streetValue}*/}
-                                {/*    onChangeText={(streetValue) => this.setState({streetValue})}*/}
-                                {/*/>*/}
-
-
-                                {/*<Slider min={0} max={40} step={1}*/}
-                                {/*        valueOnChange={value => this.setState({*/}
-                                {/*            value: value*/}
-                                {/*        })}*/}
-                                {/*        initialValue={12}*/}
-                                {/*        knobColor='red'*/}
-                                {/*        valueLabelsBackgroundColor='black'*/}
-                                {/*        inRangeBarColor='purple'*/}
-                                {/*        outOfRangeBarColor='orange'*/}
-                                {/*        style={{zIndex:5}}*/}
-                                {/*/>*/}
 
                                 <TextInput
                                     style={[feedsStyles.costCategory, {
@@ -802,10 +749,13 @@ export default class FeedsScreenComponent extends Component {
 
 
                                 <TextInput
-                                    style={[feedsStyles.costCategory, {
-                                        borderBottomRightRadius: 15,
-                                        borderBottomLeftRadius: 15,
-                                    }]}
+                                    style={[
+                                        feedsStyles.costCategory,
+                                        {
+                                            borderBottomRightRadius: 15,
+                                            borderBottomLeftRadius: 15,
+                                        }
+                                    ]}
                                     underlineColorAndroid="transparent"
                                     placeholder="Цена до"
                                     keyboardType={"numeric"}
@@ -839,10 +789,11 @@ export default class FeedsScreenComponent extends Component {
                                                     });
                                                 }}>
 
-                                                <TouchableOpacity style={feedsStyles.rbStyle}>
+                                                <View style={feedsStyles.rbStyle}>
                                                     {this.state.filterSortBy === res.key &&
-                                                        <View style={feedsStyles.selected}/>}
-                                                </TouchableOpacity>
+                                                        <View style={feedsStyles.selected}/>
+                                                    }
+                                                </View>
                                                 <Text style={feedsStyles.filterSortLabel}>{res.text}</Text>
 
                                             </TouchableOpacity>
@@ -852,20 +803,19 @@ export default class FeedsScreenComponent extends Component {
                                 })}
 
                             </View>
-                            <TouchableOpacity onPress={this.filterItems}>
-                                <LinearGradient colors={['#34BE7C', '#2EB6A5']}
-                                                style={feedsStyles.filterSearchButton}>
 
+                            <TouchableOpacity onPress={this.filterItems}>
+                                <LinearGradient
+                                    colors={['#34BE7C', '#2EB6A5']}
+                                    style={feedsStyles.filterSearchButton}
+                                >
                                     <Text style={{color: 'white'}}>
                                         Показать результаты
                                     </Text>
-
                                 </LinearGradient>
                             </TouchableOpacity>
 
                         </ScrollView>
-
-
                     </View>
                 </Modal>
 
@@ -874,11 +824,11 @@ export default class FeedsScreenComponent extends Component {
                 <View style={feedsStyles.textInputWrapperStyle}>
 
                     <View style={feedsStyles.textInputContainerStyle}>
-                        <TouchableOpacity onPress={this.focusSearchItem}>
+                        <View onPress={this.focusSearchItem}>
                             <Svg width={20} height={20} style={{marginRight: 16}} viewBox="0 0 630 630" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <Path d="M497.21 453.435l132.594 132.563-43.806 43.807L453.434 497.21a277.383 277.383 0 01-173.893 60.957C125.74 558.167.917 433.343.917 279.542S125.74.917 279.54.917c153.801 0 278.625 124.824 278.625 278.625a277.39 277.39 0 01-60.956 173.893zm-62.103-22.971a215.995 215.995 0 0061.143-150.922c0-119.747-96.993-216.708-216.709-216.708-119.746 0-216.708 96.961-216.708 216.708 0 119.716 96.962 216.708 216.708 216.708a215.996 215.996 0 00150.922-61.142l4.644-4.644z" fill="#9AA1B4"/>
                             </Svg>
-                        </TouchableOpacity>
+                        </View>
 
                         <TextInput
                             ref={this.myRef}
@@ -887,13 +837,10 @@ export default class FeedsScreenComponent extends Component {
                             placeholder="Поиск транспорта"
                             value={this.state.searchValue}
                             onChangeText={ async (text) => {
-
                                 await this.setState({
                                     searchValue: text
                                 });
-
                                 await this.getProducts()
-                                // this.searchItems(text)
                             }}
                         />
 
@@ -908,48 +855,36 @@ export default class FeedsScreenComponent extends Component {
                                     </LinearGradient1>
                                 </Defs>
                             </Svg>
-
-
                         </TouchableOpacity>
 
 
                     </View>
-
-
                 </View>
 
 
                 <View style={feedsStyles.safeArea}>
 
                     {this.state.isFilterUsed &&
-
                         <View style={{paddingLeft:20, width: '100%', paddingBottom: 5}}>
                             <TouchableOpacity style={feedsStyles.resetFilter} onPress={this.clearFilter}>
-                                <Text style={feedsStyles.filterText}>Очистить фильтер</Text>
+                                <Text style={feedsStyles.filterText}>Очистить фильтр</Text>
                                 <Ionicons name="close" size={24} color="black"/>
                             </TouchableOpacity>
                         </View>
-
                     }
 
                     { this.state.products.length == 0 &&
-
                         <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-
                             <Text>Обьявления не найденны.</Text>
-
                         </View>
                     }
 
 
                     {this.state.products.length > 0 &&
-
-
                         <FlatList
                             extraData={this.state}
                             data={this.state.products}
                             renderItem={({item, index}) => {
-
                                 return (
                                     <View>
                                         <View style={feedsStyles.feedsCarItems}>
@@ -959,18 +894,18 @@ export default class FeedsScreenComponent extends Component {
 
                                                 {Number(item.user_id) !== Number(this.state.loggedUserID) &&
 
-                                                <TouchableOpacity style={feedsStyles.addinwish}
+                                                <TouchableOpacity
+                                                      style={feedsStyles.addinwish}
+                                                      onPress={() => {
+                                                          if (this.state.wishListId.includes(item.id)) {
+                                                              this.setState(prev => ({wishListId: prev.wishListId.filter(items => item.id !== items)}))
+                                                              this.removeFromFavourites(item.id)
 
-                                                                  onPress={() => {
-                                                                      if (this.state.wishListId.includes(item.id)) {
-                                                                          this.setState(prev => ({wishListId: prev.wishListId.filter(items => item.id !== items)}))
-                                                                          this.removeFromFavourites(item.id)
-
-                                                                      } else {
-                                                                          this.addToFavourites(item.user_id, item.id)
-                                                                          this.setState((prev) => ({wishListId: [...prev.wishListId, item.id]}))
-                                                                      }
-                                                                  }}>
+                                                          } else {
+                                                              this.addToFavourites(item.user_id, item.id)
+                                                              this.setState((prev) => ({wishListId: [...prev.wishListId, item.id]}))
+                                                          }
+                                                      }}>
 
 
                                                     {this.state.wishListId.includes(item.id) ?
@@ -995,134 +930,89 @@ export default class FeedsScreenComponent extends Component {
 
 
                                             <View style={feedsStyles.feedsCarItemRight}>
-
-                                                <TouchableOpacity onPress={() => this.openSingleCar(item)}
-
-                                                >
-
+                                                <TouchableOpacity onPress={() => this.openSingleCar(item)}>
                                                     <Text
                                                         numberOfLines={1}
-                                                        style={{
-                                                            fontSize: 12,
-                                                            fontWeight: '400',
-                                                            color: '#424A55',
-                                                            marginBottom: 5,
-                                                            width: "100%",
-                                                        }}>
-                                                        <Text style={{
-                                                            fontSize: 14,
-                                                            fontWeight: '700',
-                                                            color: '#424A55',
-
-                                                        }}>{"Заголовок" + " - "}</Text>{item.headline}</Text>
-
-
-                                                    <Text
-                                                        numberOfLines={1}
-                                                        style={{
-                                                            width: "100%",
-                                                            fontSize: 12,
-                                                            fontWeight: '400',
-                                                            color: '#424A55',
-                                                            marginBottom: 5
-                                                        }}>
-                                                        <Text style={{
-                                                            fontSize: 14,
-                                                            fontWeight: '700',
-                                                            color: '#424A55',
-                                                        }}>{"Цена" + " - "}</Text>{item.price+" ₽"} </Text>
-
-
-                                                    <Text
-                                                        numberOfLines={1}
-                                                        style={{
-                                                            width: "100%",
-                                                            fontSize: 12,
-                                                            fontWeight: '400',
-                                                            color: '#424A55',
-                                                            marginBottom: 5
-                                                        }}>
-                                                        <Text style={{
-                                                            fontSize: 14,
-                                                            fontWeight: '700',
-                                                            color: '#424A55',
-                                                        }}>{"Адрес" + " - "}</Text>{item.address}</Text>
-
-                                                    <Text
-                                                        numberOfLines={1}
-                                                        style={{
-                                                            width: "100%",
-                                                            fontSize: 12,
-                                                            fontWeight: '400',
-                                                            color: '#424A55',
-                                                            marginBottom: 5
-                                                        }}>
-                                                        <Text style={{
-                                                            fontSize: 14,
-                                                            fontWeight: '700',
-                                                            color: '#424A55',
-                                                            marginBottom: 10
-                                                        }}>{"Опубликован" + " - "}</Text>
-                                                        {item.updated_at.split("").slice(0, 10).join("")}
-                                                    </Text>
+                                                        style={{fontSize: 12, fontWeight: '400', color: '#424A55', marginBottom: 5, width: "100%",}}>
+                                                        <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55',}}>{"Заголовок" + " - "}</Text>{item.headline}</Text>
+                                                        <Text numberOfLines={1} style={{width: "100%", fontSize: 12, fontWeight: '400', color: '#424A55', marginBottom: 5}}>
+                                                        <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55',}}>{"Цена" + " - "}</Text>{item.price+" ₽"} </Text>
+                                                        <Text numberOfLines={1} style={{width: "100%", fontSize: 12, fontWeight: '400', color: '#424A55', marginBottom: 5}}>
+                                                        <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55',}}>{"Адрес" + " - "}</Text>{item.address}</Text>
+                                                        <Text
+                                                            numberOfLines={1}
+                                                            style={{width: "100%", fontSize: 12, fontWeight: '400', color: '#424A55', marginBottom: 5}}>
+                                                            <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55', marginBottom: 10}}>{"Опубликован" + " - "}</Text>
+                                                            {item.updated_at.split("").slice(0, 10).join("")}
+                                                        </Text>
                                                 </TouchableOpacity>
                                             </View>
-
-
                                         </View>
-
-                                        {/*{this.state.products.length -1 == index &&*/}
-
-                                        {/*    <View style={{width: '100%', height:50, backgroundColor:'red'}}>*/}
-
-                                        {/*    </View>*/}
-                                        {/*    */}
-                                        {/*}*/}
-
                                     </View>
                                 )
                             }}
                             contentContainerStyle={{paddingHorizontal:20 }}
+                            onRefresh={()=> {
+                                console.log('onRefresh')
+                                if (this.state.isLoading) return; // Если уже происходит загрузка, прекратить обновление
 
+                                this.setState({
+                                    IsRefreshing: true,
+                                    IsEndReached: false,
+                                })
+
+                                this.getProducts()
+                                this.getFavouriteItems()
+                            }}
+                            refreshing={this.state.isRefreshing}
                         />
-
                     }
 
 
 
 
-                    <View style={{width: '100%', height:50,  flexDirection:'row', justifyContent:'space-between', marginBottom: 15, paddingHorizontal:20}}>
+                    <View style={{width: '100%', height:50,  flexDirection:'row', justifyContent:'center', alignItems:'center', marginBottom: 35, marginTop:15, paddingHorizontal:20}}>
 
+                        <View style={{flexDirection:'row', justifyContent:'center', alignItems:'center'}}>
 
-                        {this.state.products.length > 0 &&
-                            <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={singleCarStyles.callButton}>
-                                <TouchableOpacity style={singleCarStyles.callButtonToch}
-                                                  onPress={() => {
-                                                      this.showPrevAuto()
-                                                  }}
-                                >
-                                    <Text style={{ color: 'white' }}>
-                                        Назад
-                                    </Text>
-                                </TouchableOpacity>
-                            </LinearGradient>
-                        }
-
-                        {this.state.nextButton &&
-
-                            <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={singleCarStyles.callButton}>
+                            <View style={[singleCarStyles.callButtonPagination, this.state.products.length == 0 || this.state.current_page == 1 && {opacity:0.5}]}>
                                 <TouchableOpacity style={singleCarStyles.callButtonToch}
                                       onPress={() => {
-                                          this.showNextAuto()
+                                          this.showPrevAuto()
                                       }}
                                 >
-                                    <Text style={{ color: 'white' }}>
-                                        Вперед
-                                    </Text>
+                                    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M10.829 12l4.95-4.95-1.415-1.413L8 12l6.364 6.364 1.414-1.415-4.95-4.95z" fill="#b5b8c2"/>
+                                    </Svg>
                                 </TouchableOpacity>
-                            </LinearGradient>
+                            </View>
 
-                        }
+
+                            <View style={{width: 50, height: 50, backgroundColor:'transparent', justifyContent:'center', alignItems:'center'}}>
+                                <Text style={{ fontSize: 18, zIndex:2, color:'white'}}>{this.state.current_page}</Text>
+                                <PaginationCircle style={{ position:'absolute', left: -22, top:-17}}/>
+                            </View>
+
+                            {/*{this.state.nextButton &&*/}
+
+                                <View style={[singleCarStyles.callButtonPagination, !this.state.nextButton && {opacity:0.5}]}>
+                                    <TouchableOpacity style={singleCarStyles.callButtonToch}
+                                      onPress={() => {
+                                          if(this.state.nextButton)
+                                          {
+                                              this.showNextAuto()
+                                          }
+                                      }}
+                                    >
+                                        <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M13.171 12l-4.95-4.95 1.415-1.413L16 12l-6.364 6.364-1.414-1.415 4.95-4.95z" fill="#b5b8c2"/>
+                                        </Svg>
+                                    </TouchableOpacity>
+                                </View>
+
+                            {/*// }*/}
+
+                        </View>
 
                     </View>
 
@@ -1150,7 +1040,7 @@ export default class FeedsScreenComponent extends Component {
                         <NoActiveFavoritesSvg/>
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => {this.props.navigation.navigate('AddCarComponent')}} style={{position:'absolute', top: -50}}>
+                    <TouchableOpacity onPress={() => {this.props.navigation.navigate('AddCarComponent')}} style={{position:'absolute', top: -40}}>
                         <AddAutoSvg/>
                     </TouchableOpacity>
 

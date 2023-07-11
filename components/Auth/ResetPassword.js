@@ -20,6 +20,9 @@ import {
     useSafeAreaInsets,
     initialWindowMetrics,
 } from 'react-native-safe-area-context';
+import {ProfileStyles} from "../Profile/ProfileStyles";
+import EditCarScreen from "../EditCar/EditCarScreen";
+import Svg, {Path} from "react-native-svg";
 
 export default class ResetPassword extends Component {
     constructor(props) {
@@ -56,11 +59,10 @@ export default class ResetPassword extends Component {
     sendEmail = () => {
         const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
-
         if (!this.state.email.length) {
-            this.setState({ emailError: 'Данное поле необходимо заполнить' })
+            this.setState({ emailError: 'Данное поле обязательно' })
         } else if (!reg.test(this.state.email)) {
-            this.setState({ emailError: 'Введите корректный адрес электронной почты' })
+            this.setState({ emailError: 'Не верный E-mail' })
         } else {
             fetch("https://bowy.ru/api/code-sending", {
                 method: "POST",
@@ -74,11 +76,17 @@ export default class ResetPassword extends Component {
                 .then((res) => {
                     console.log(res, "gago")
                     if (res.success) {
-                        this.setState({ emailError: false, successMessage: true })
-                        setTimeout(() => {
-                            this.props.navigation.navigate('EditPassword')
-                            this.setState({ successMessage: false, email: '', })
-                        }, 3000)
+                        this.setState({
+                            emailError: false,
+                            successMessage: false,
+                            email: ''
+                        })
+
+                        this.props.navigation.navigate('EditPassword')
+                        // this.setState({ successMessage: false, email: '', })
+                        // setTimeout(() => {
+                        //
+                        // }, 3000)
 
                     } else {
                         this.setState({ emailError: res.message })
@@ -94,23 +102,32 @@ export default class ResetPassword extends Component {
             <SafeAreaView
                 style={{
                     flex: 1,
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
                     alignItems: 'center',
                     backgroundColor: 'white',
-                    paddingHorizontal: 25,
-                    marginTop: StatusBar.currentHeight + 10
+                    paddingHorizontal: 15,
+                    paddingTop:10
                 }}>
+                <TouchableOpacity
+                    style={{backgroundColor:'white', width:'100%'}}
+                    onPress={() => {
+                        this.props.navigation.goBack()
+                    }}
+                >
+                    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <Path d="M21.75 12H6m0 0l6.3-7M6 12l6.3 7" stroke="#000" strokeLinecap="round" strokeLinejoin="round"/>
+                    </Svg>
+                </TouchableOpacity>
                 <View style={{ marginTop: 30 }}>
-                    <Text style={styles.text}>Восстановить {"\n"}
-                        Пароль</Text>
+                    <Text style={styles.text}>Восстановление пароля</Text>
                 </View>
 
                 {this.state.successMessage &&
-                    <Text style={styles.successMessageStyle}>Код восстонавления отправлен на ваш адрес электронной
-                        почты</Text>}
+                    <Text style={styles.successMessageStyle}>Код успешно отправлен.</Text>
+                }
                 <ScrollView
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.contentContainer}
+                    contentContainerStyle={[styles.contentContainer, {backgroundColor:'white' }]}
                     style={{ flex: 1, width: "100%" }}>
                     {!this.state.emailError ?
                         <TextInput
@@ -154,30 +171,31 @@ export default class ResetPassword extends Component {
                     <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linerGradient}>
                         <TouchableOpacity style={styles.button} onPress={this.sendEmail}>
                             <Text style={{ color: 'white' }}>
-                                Отправить Код {"\n"}
-                                Подтверждения
+                                Отправить Код
                             </Text>
                         </TouchableOpacity>
                     </LinearGradient>
 
 
-                    <View style={styles.bottomView}>
-                        <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linerGradient1}>
-                            <TouchableOpacity style={styles.button} onPress={() => this.goToLogin()}>
-                                <Text style={{ color: 'white' }}>
-                                    Вход
-                                </Text>
-                            </TouchableOpacity>
-                        </LinearGradient>
+                    {/*<View style={styles.bottomView}>*/}
+                    {/*   */}
 
-                        <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linerGradient1}>
-                            <TouchableOpacity style={styles.button} onPress={() => this.goToRegister()}>
-                                <Text style={{ color: 'white' }}>
-                                    Регистрация
-                                </Text>
-                            </TouchableOpacity>
-                        </LinearGradient>
-                    </View>
+                    {/*    <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linerGradient1}>*/}
+                    {/*        <TouchableOpacity style={styles.button} onPress={() => this.goToLogin()}>*/}
+                    {/*            <Text style={{ color: 'white' }}>*/}
+                    {/*                Вход*/}
+                    {/*            </Text>*/}
+                    {/*        </TouchableOpacity>*/}
+                    {/*    </LinearGradient>*/}
+
+                    {/*    <LinearGradient colors={['#34BE7C', '#2EB6A5']} style={styles.linerGradient1}>*/}
+                    {/*        <TouchableOpacity style={styles.button} onPress={() => this.goToRegister()}>*/}
+                    {/*            <Text style={{ color: 'white' }}>*/}
+                    {/*                Регистрация*/}
+                    {/*            </Text>*/}
+                    {/*        </TouchableOpacity>*/}
+                    {/*    </LinearGradient>*/}
+                    {/*</View>*/}
                 </ScrollView>
 
 
@@ -211,7 +229,8 @@ const styles = StyleSheet.create({
     successMessageStyle: {
         color: "green",
         fontSize: 15,
-        textAlign: "center"
+        textAlign: "center",
+        marginBottom: 10
     },
     resetSide: {
         width: "100%",

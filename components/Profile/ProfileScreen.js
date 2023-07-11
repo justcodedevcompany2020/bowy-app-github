@@ -67,7 +67,8 @@ export default class ProfileComponent extends Component {
             editButtonsVisibility: false,
 
             errorMessage: null,
-            show_success_modal: false
+            show_success_modal: false,
+            user_data_image: null
 
         };
     }
@@ -102,16 +103,16 @@ export default class ProfileComponent extends Component {
                     res[0].products.map((item) => {
                         console.log(typeof item.status, item.status)
 
-                        if (item.status === 1) {
+                        if (item.admin_status === '2') {
                             // this.setState({userActiveProducts: res[0].products});
 
                             userActiveProducts.push(item);
 
-                        } else if (item.status === 0){
+                        } else if (item.admin_status === '1'){
                             userNoActiveProducts.push(item);
-
                             // this.setState({userNoActiveProducts: res[0].products});
                         }
+
                     })
 
                     this.setState({
@@ -157,16 +158,23 @@ export default class ProfileComponent extends Component {
     }
 
     editUserData = async () => {
-        const {userData} = this.state
+
+        const {userData,user_data_image} = this.state
+
         try {
+            console.log(userData.image, 'userData.image')
 
             let userToken = await AsyncStorage.getItem("userToken")
             let AuthStr = "Bearer " + userToken
 
             const form = new FormData();
-            if (userData.image.assets[0].uri) {
+
+            // if (userData.image.assets[0].uri) {
+
+            if (user_data_image)
+            {
                 form.append('image', {
-                    uri: userData.image?.uri,
+                    uri: user_data_image.assets[0].uri,
                     type: 'image/jpg',
                     name: 'image.jpg',
                 });
@@ -201,9 +209,11 @@ export default class ProfileComponent extends Component {
                             emailRename: false,
                             locationRename: false,
                             errorMessage: null,
-                            show_success_modal: true
+                            show_success_modal: true,
                             // userData: {...this.state.userData, name: res}
                         })
+
+                        this.getUserData()
 
 
                     } else {
@@ -220,7 +230,7 @@ export default class ProfileComponent extends Component {
                     console.log("Vzgo")
                 })
         } catch (e) {
-            console.log("eeeeeeeeeee")
+            console.log("ERROR", e)
         }
     }
 
@@ -244,6 +254,11 @@ export default class ProfileComponent extends Component {
 
                             <View style={ProfileStyles.profileCarItemRight}>
                                 <TouchableOpacity onPress={() => this.openSingleCar(item)}>
+
+                                    {item.admin_status == 1 &&
+                                        <Text style={{fontWeight:'bold', marginBottom: 4, fontSize: 15, color: 'green'}}>На модерации</Text>
+                                    }
+
                                     <Text
                                         numberOfLines={1}
                                         style={{
@@ -258,7 +273,7 @@ export default class ProfileComponent extends Component {
                                             fontWeight: '700',
                                             color: '#424A55',
 
-                                        }}>{"Заголовок" + " - "}</Text>{item.headline}</Text>
+                                        }}>Заголовок - </Text>{item.headline}</Text>
 
 
                                     <Text
@@ -360,9 +375,10 @@ export default class ProfileComponent extends Component {
 
 
         let {userData} = this.state;
-        userData.image = pickerResult;
+        // userData.image = pickerResult;
         this.setState({
-            userData
+            // userData
+            user_data_image: pickerResult
         })
     };
 
@@ -442,15 +458,18 @@ export default class ProfileComponent extends Component {
 
                 <View style={ProfileStyles.profileTitleWrapper}>
 
-                    <TouchableOpacity style={ProfileStyles.wishTitle} onPress={() => {
-                        this.handleBackButtonClick(EditCarScreen);
-                    }}>
+                    <TouchableOpacity style={ProfileStyles.wishTitle}
+                        onPress={() => {
+                            this.handleBackButtonClick(EditCarScreen);
+                        }}
+                    >
                         <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <Path d="M21.75 12H6m0 0l6.3-7M6 12l6.3 7" stroke="#000" strokeLinecap="round" strokeLinejoin="round"/>
                         </Svg>
                     </TouchableOpacity>
 
                     <View style={{alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
+
                         {/*<TouchableOpacity>*/}
 
                         {/*    <Svg style={ProfileStyles.profileNot} viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
@@ -546,72 +565,72 @@ export default class ProfileComponent extends Component {
 
                         {/*Number*/}
 
-                        {/*{this.state.numberRename === false ?*/}
-                        {/*    <View style={ProfileStyles.userInfoItem}>*/}
+                        {this.state.numberRename === false ?
+                            <View style={ProfileStyles.userInfoItem}>
 
 
-                        {/*        /!*<View>*!/*/}
-                        {/*        /!*    <View style={{flexDirection: 'row', width: '90%', alignItems: "center"}}>*!/*/}
+                                <View>
+                                    <View style={{flexDirection: 'row', width: '90%', alignItems: "center"}}>
 
-                        {/*        /!*        <Svg style={ProfileStyles.profileCall} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">*!/*/}
-                        {/*        /!*            <Path d="M15.5 11.683v2.947a.833.833 0 01-.775.832c-.364.025-.662.038-.892.038C6.47 15.5.5 9.53.5 2.167c0-.23.012-.528.038-.892A.833.833 0 011.37.5h2.947a.417.417 0 01.415.375c.019.192.036.344.053.46.166 1.156.505 2.28 1.007 3.334a.38.38 0 01-.123.473L3.871 6.427a10.872 10.872 0 005.703 5.703l1.284-1.795a.385.385 0 01.477-.124c1.054.5 2.178.84 3.333 1.004.116.017.269.035.459.053a.417.417 0 01.374.415H15.5z" fill="#818B9B"/>*!/*/}
-                        {/*        /!*        </Svg>*!/*/}
+                                        <Svg style={ProfileStyles.profileCall} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M15.5 11.683v2.947a.833.833 0 01-.775.832c-.364.025-.662.038-.892.038C6.47 15.5.5 9.53.5 2.167c0-.23.012-.528.038-.892A.833.833 0 011.37.5h2.947a.417.417 0 01.415.375c.019.192.036.344.053.46.166 1.156.505 2.28 1.007 3.334a.38.38 0 01-.123.473L3.871 6.427a10.872 10.872 0 005.703 5.703l1.284-1.795a.385.385 0 01.477-.124c1.054.5 2.178.84 3.333 1.004.116.017.269.035.459.053a.417.417 0 01.374.415H15.5z" fill="#818B9B"/>
+                                        </Svg>
 
-                        {/*        /!*        <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55', marginBottom: 10}}>Номер телефона</Text>*!/*/}
+                                        <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55', marginBottom: 10}}>Номер телефона</Text>
 
-                        {/*        /!*    </View>*!/*/}
+                                    </View>
 
-                        {/*        /!*    <Text style={{color: '#424A55', fontSize: 14, paddingLeft: 24}}>*!/*/}
-                        {/*        /!*        {userData.number}*!/*/}
-                        {/*        /!*    </Text>*!/*/}
+                                    <Text style={{color: '#424A55', fontSize: 14, paddingLeft: 24}}>
+                                        {userData.number}
+                                    </Text>
 
-                        {/*        /!*</View>*!/*/}
-
-
-                        {/*        <View style={{alignItems: 'flex-end',  flex:1}}>*/}
-                        {/*            <TouchableOpacity onPress={() => this.setState({numberRename: true})}>*/}
-
-                        {/*                {this.state.editButtonsVisibility &&*/}
-                        {/*                    <Svg style={{marginLeft: 15}} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                        {/*                        <Path d="M5.702 13.833H15.5V15.5H.5v-3.536l8.25-8.25 3.535 3.537-6.583 6.582zM9.928 2.537L11.696.768a.833.833 0 011.178 0l2.358 2.358a.833.833 0 010 1.178l-1.769 1.768-3.535-3.535z" fill="#676B72"/>*/}
-                        {/*                    </Svg>*/}
-                        {/*                }*/}
-                        {/*            </TouchableOpacity>*/}
-                        {/*        </View>*/}
-                        {/*    </View>*/}
+                                </View>
 
 
-                        {/*    :*/}
+                                <View style={{alignItems: 'flex-end',  flex:1}}>
+                                    <TouchableOpacity onPress={() => this.setState({numberRename: true})}>
+
+                                        {this.state.editButtonsVisibility &&
+                                            <Svg style={{marginLeft: 15}} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M5.702 13.833H15.5V15.5H.5v-3.536l8.25-8.25 3.535 3.537-6.583 6.582zM9.928 2.537L11.696.768a.833.833 0 011.178 0l2.358 2.358a.833.833 0 010 1.178l-1.769 1.768-3.535-3.535z" fill="#676B72"/>
+                                            </Svg>
+                                        }
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
 
 
-                        {/*    <View style={ProfileStyles.userInfoItem}>*/}
-                        {/*        <View style={{width: '90%', flexDirection: 'row', alignItems: "flex-end"}}>*/}
-                        {/*            <Svg style={ProfileStyles.profileCall} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                        {/*                <Path d="M15.5 11.683v2.947a.833.833 0 01-.775.832c-.364.025-.662.038-.892.038C6.47 15.5.5 9.53.5 2.167c0-.23.012-.528.038-.892A.833.833 0 011.37.5h2.947a.417.417 0 01.415.375c.019.192.036.344.053.46.166 1.156.505 2.28 1.007 3.334a.38.38 0 01-.123.473L3.871 6.427a10.872 10.872 0 005.703 5.703l1.284-1.795a.385.385 0 01.477-.124c1.054.5 2.178.84 3.333 1.004.116.017.269.035.459.053a.417.417 0 01.374.415H15.5z" fill="#818B9B"/>*/}
-                        {/*            </Svg>*/}
-                        {/*            <TextInput*/}
-                        {/*                value={userData.number}*/}
-                        {/*                style={ProfileStyles.refactorInput}*/}
-                        {/*                keyboardType="phone-pad"*/}
-                        {/*                onChangeText={(userPhoneNumber) => {*/}
-                        {/*                    this.setState((prevState) => ({*/}
-                        {/*                        userData: {...prevState.userData, number: userPhoneNumber}*/}
-                        {/*                    }));*/}
-                        {/*                }}*/}
-                        {/*                onSubmitEditing={() => {*/}
-                        {/*                    this.setState({numberRename: false})*/}
-                        {/*                }}*/}
-                        {/*            />*/}
-                        {/*        </View>*/}
+                            :
 
-                        {/*    </View>*/}
 
-                        {/*}*/}
+                            <View style={ProfileStyles.userInfoItem}>
+                                <View style={{width: '90%', flexDirection: 'row', alignItems: "flex-end"}}>
+                                    <Svg style={ProfileStyles.profileCall} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M15.5 11.683v2.947a.833.833 0 01-.775.832c-.364.025-.662.038-.892.038C6.47 15.5.5 9.53.5 2.167c0-.23.012-.528.038-.892A.833.833 0 011.37.5h2.947a.417.417 0 01.415.375c.019.192.036.344.053.46.166 1.156.505 2.28 1.007 3.334a.38.38 0 01-.123.473L3.871 6.427a10.872 10.872 0 005.703 5.703l1.284-1.795a.385.385 0 01.477-.124c1.054.5 2.178.84 3.333 1.004.116.017.269.035.459.053a.417.417 0 01.374.415H15.5z" fill="#818B9B"/>
+                                    </Svg>
+                                    <TextInput
+                                        value={userData.number}
+                                        style={ProfileStyles.refactorInput}
+                                        keyboardType="phone-pad"
+                                        onChangeText={(userPhoneNumber) => {
+                                            this.setState((prevState) => ({
+                                                userData: {...prevState.userData, number: userPhoneNumber}
+                                            }));
+                                        }}
+                                        onSubmitEditing={() => {
+                                            this.setState({numberRename: false})
+                                        }}
+                                    />
+                                </View>
+
+                            </View>
+
+                        }
 
                         {/*Email*/}
 
 
-                        {this.state.emailRename === false ?
+                        {/*{this.state.emailRename === false ?*/}
 
                             <View style={ProfileStyles.userInfoItem}>
 
@@ -634,114 +653,114 @@ export default class ProfileComponent extends Component {
                                 </View>
 
 
+                                {/*<View style={{alignItems: 'flex-end',  flex:1}}>*/}
+
+                                {/*    {this.state.editButtonsVisibility &&*/}
+
+                                {/*    <TouchableOpacity onPress={() => this.setState({emailRename: true})}>*/}
+                                {/*        <Svg style={{marginLeft: 15}} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                                {/*            <Path d="M5.702 13.833H15.5V15.5H.5v-3.536l8.25-8.25 3.535 3.537-6.583 6.582zM9.928 2.537L11.696.768a.833.833 0 011.178 0l2.358 2.358a.833.833 0 010 1.178l-1.769 1.768-3.535-3.535z" fill="#676B72"/>*/}
+                                {/*        </Svg>*/}
+                                {/*    </TouchableOpacity>*/}
+
+                                {/*    }*/}
+
+                                {/*</View>*/}
+
+                            </View>
+
+                        {/*    :*/}
+                        {/*    <View style={ProfileStyles.userInfoItem}>*/}
+                        {/*        <View style={{width: '90%', flexDirection: 'row', alignItems: "flex-end"}}>*/}
+                        {/*            <Svg style={ProfileStyles.profileMail} viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
+                        {/*                <Path d="M1.5.5h15a.833.833 0 01.833.833v13.334a.833.833 0 01-.833.833h-15a.833.833 0 01-.833-.833V1.333A.833.833 0 011.5.5zm7.55 7.236L3.707 3.198l-1.08 1.27 6.434 5.463 6.317-5.467-1.09-1.26-5.237 4.532z" fill="#818B9B"/>*/}
+                        {/*            </Svg>*/}
+                        {/*            <TextInput*/}
+                        {/*                value={userData.email}*/}
+                        {/*                keyboardType={"email-address"}*/}
+                        {/*                style={ProfileStyles.refactorInput}*/}
+                        {/*                onChangeText={(userEmail) => {*/}
+                        {/*                    this.setState((prevState) => ({*/}
+                        {/*                        userData: {...prevState.userData, email: userEmail}*/}
+                        {/*                    }));*/}
+                        {/*                }}*/}
+                        {/*                onSubmitEditing={() => {*/}
+                        {/*                    this.setState({emailRename: false})*/}
+                        {/*                }}*/}
+                        {/*            />*/}
+                        {/*        </View>*/}
+                        {/*    </View>}*/}
+
+                        {/*userLocation*/}
+
+                        {this.state.locationRename === false ?
+                            <View style={ProfileStyles.userInfoItem}>
+
+                                <View>
+
+                                    <View style={{flexDirection: 'row', width: '90%'}}>
+
+                                        <Svg style={ProfileStyles.profileLocation} viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <Path d="M13.303 13.47L8 18.773 2.697 13.47a7.5 7.5 0 1110.606 0zM8 11.5a3.333 3.333 0 100-6.667A3.333 3.333 0 008 11.5zm0-1.667A1.667 1.667 0 118 6.5a1.667 1.667 0 010 3.333z" fill="#818B9B"/>
+                                        </Svg>
+
+                                        <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55', marginBottom: 10}}>Местоположение</Text>
+
+                                    </View>
+
+                                    <Text style={{color: '#424A55', fontSize: 14, paddingLeft: 24}}>
+
+                                        {this.state.locationName}
+
+                                    </Text>
+                                </View>
+
+
+
+
                                 <View style={{alignItems: 'flex-end',  flex:1}}>
 
                                     {this.state.editButtonsVisibility &&
 
-                                    <TouchableOpacity onPress={() => this.setState({emailRename: true})}>
-                                        <Svg style={{marginLeft: 15}} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <Path d="M5.702 13.833H15.5V15.5H.5v-3.536l8.25-8.25 3.535 3.537-6.583 6.582zM9.928 2.537L11.696.768a.833.833 0 011.178 0l2.358 2.358a.833.833 0 010 1.178l-1.769 1.768-3.535-3.535z" fill="#676B72"/>
-                                        </Svg>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => this.setState({locationRename: true})}>
+                                            <Svg style={{marginLeft: 15}} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <Path d="M5.702 13.833H15.5V15.5H.5v-3.536l8.25-8.25 3.535 3.537-6.583 6.582zM9.928 2.537L11.696.768a.833.833 0 011.178 0l2.358 2.358a.833.833 0 010 1.178l-1.769 1.768-3.535-3.535z" fill="#676B72"/>
+                                            </Svg>
+                                        </TouchableOpacity>
 
                                     }
 
                                 </View>
 
+
                             </View>
 
                             :
+
                             <View style={ProfileStyles.userInfoItem}>
+
                                 <View style={{width: '90%', flexDirection: 'row', alignItems: "flex-end"}}>
-                                    <Svg style={ProfileStyles.profileMail} viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <Path d="M1.5.5h15a.833.833 0 01.833.833v13.334a.833.833 0 01-.833.833h-15a.833.833 0 01-.833-.833V1.333A.833.833 0 011.5.5zm7.55 7.236L3.707 3.198l-1.08 1.27 6.434 5.463 6.317-5.467-1.09-1.26-5.237 4.532z" fill="#818B9B"/>
+
+                                    <Svg style={ProfileStyles.profileLocation} viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <Path d="M13.303 13.47L8 18.773 2.697 13.47a7.5 7.5 0 1110.606 0zM8 11.5a3.333 3.333 0 100-6.667A3.333 3.333 0 008 11.5zm0-1.667A1.667 1.667 0 118 6.5a1.667 1.667 0 010 3.333z" fill="#818B9B"/>
                                     </Svg>
+
                                     <TextInput
-                                        value={userData.email}
-                                        keyboardType={"email-address"}
+                                        value={userData?.city}
                                         style={ProfileStyles.refactorInput}
-                                        onChangeText={(userEmail) => {
+                                        onChangeText={(userCity) => {
                                             this.setState((prevState) => ({
-                                                userData: {...prevState.userData, email: userEmail}
+                                                userData: {...prevState.userData, city: userCity}
                                             }));
+
                                         }}
                                         onSubmitEditing={() => {
-                                            this.setState({emailRename: false})
+                                            this.setState({locationRename: false})
                                         }}
                                     />
                                 </View>
-                            </View>}
-
-                        {/*userLocation*/}
-
-                        {/*{this.state.locationRename === false ?*/}
-                        {/*    <View style={ProfileStyles.userInfoItem}>*/}
-
-                        {/*        <View>*/}
-
-                        {/*            <View style={{flexDirection: 'row', width: '90%'}}>*/}
-
-                        {/*                <Svg style={ProfileStyles.profileLocation} viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                        {/*                    <Path d="M13.303 13.47L8 18.773 2.697 13.47a7.5 7.5 0 1110.606 0zM8 11.5a3.333 3.333 0 100-6.667A3.333 3.333 0 008 11.5zm0-1.667A1.667 1.667 0 118 6.5a1.667 1.667 0 010 3.333z" fill="#818B9B"/>*/}
-                        {/*                </Svg>*/}
-
-                        {/*                <Text style={{fontSize: 14, fontWeight: '700', color: '#424A55', marginBottom: 10}}>Местоположение</Text>*/}
-
-                        {/*            </View>*/}
-
-                        {/*            <Text style={{color: '#424A55', fontSize: 14, paddingLeft: 24}}>*/}
-
-                        {/*                {this.state.locationName}*/}
-
-                        {/*            </Text>*/}
-                        {/*        </View>*/}
-
-
-
-
-                        {/*        <View style={{alignItems: 'flex-end',  flex:1}}>*/}
-
-                        {/*            {this.state.editButtonsVisibility &&*/}
-
-                        {/*                <TouchableOpacity onPress={() => this.setState({locationRename: true})}>*/}
-                        {/*                    <Svg style={{marginLeft: 15}} width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                        {/*                        <Path d="M5.702 13.833H15.5V15.5H.5v-3.536l8.25-8.25 3.535 3.537-6.583 6.582zM9.928 2.537L11.696.768a.833.833 0 011.178 0l2.358 2.358a.833.833 0 010 1.178l-1.769 1.768-3.535-3.535z" fill="#676B72"/>*/}
-                        {/*                    </Svg>*/}
-                        {/*                </TouchableOpacity>*/}
-
-                        {/*            }*/}
-
-                        {/*        </View>*/}
-
-
-                        {/*    </View>*/}
-
-                        {/*    :*/}
-
-                        {/*    <View style={ProfileStyles.userInfoItem}>*/}
-
-                        {/*        <View style={{width: '90%', flexDirection: 'row', alignItems: "flex-end"}}>*/}
-
-                        {/*            <Svg style={ProfileStyles.profileLocation} viewBox="0 0 16 19" fill="none" xmlns="http://www.w3.org/2000/svg">*/}
-                        {/*                <Path d="M13.303 13.47L8 18.773 2.697 13.47a7.5 7.5 0 1110.606 0zM8 11.5a3.333 3.333 0 100-6.667A3.333 3.333 0 008 11.5zm0-1.667A1.667 1.667 0 118 6.5a1.667 1.667 0 010 3.333z" fill="#818B9B"/>*/}
-                        {/*            </Svg>*/}
-
-                        {/*            <TextInput*/}
-                        {/*                value={userData?.city}*/}
-                        {/*                style={ProfileStyles.refactorInput}*/}
-                        {/*                onChangeText={(userCity) => {*/}
-                        {/*                    this.setState((prevState) => ({*/}
-                        {/*                        userData: {...prevState.userData, city: userCity}*/}
-                        {/*                    }));*/}
-
-                        {/*                }}*/}
-                        {/*                onSubmitEditing={() => {*/}
-                        {/*                    this.setState({locationRename: false})*/}
-                        {/*                }}*/}
-                        {/*            />*/}
-                        {/*        </View>*/}
-                        {/*    </View>*/}
-                        {/*}*/}
+                            </View>
+                        }
 
 
                         {this.state.errorMessage &&
