@@ -797,7 +797,7 @@ export default class App extends Component {
 
                         {/*    /!* info items*!/*/}
 
-                        <View style={singleCarStyles.infoWrapper}>
+                        {this.state.autoData?.car_model !== 'Не указан' &&<View style={singleCarStyles.infoWrapper}>
 
                             <View style={singleCarStyles.infoLabelWrapper}>
                                 <Text style={singleCarStyles.infoLabel}>Марка автомобиля</Text>
@@ -806,9 +806,9 @@ export default class App extends Component {
                             <View>
                                 <Text style={singleCarStyles.infoValue}>{this.state.autoData?.car_model} </Text>
                             </View>
-                        </View>
+                        </View>}
 
-                        <View style={singleCarStyles.infoWrapper}>
+                        {this.state.autoData?.body_type !== 'Не указан' && <View style={singleCarStyles.infoWrapper}>
 
                             <View style={singleCarStyles.infoLabelWrapper}>
                                 <Text style={singleCarStyles.infoLabel}>Тип кузова</Text>
@@ -817,7 +817,7 @@ export default class App extends Component {
                             <View>
                                 <Text style={singleCarStyles.infoValue}>{this.state.autoData?.body_type} </Text>
                             </View>
-                        </View>
+                        </View>}
 
                         <View style={singleCarStyles.infoWrapper}>
 
@@ -831,7 +831,7 @@ export default class App extends Component {
                             </View>
                         </View>
 
-                        <View style={singleCarStyles.infoWrapper}>
+                        {this.state.autoData?.transmission !== 'Не указан' && <View style={singleCarStyles.infoWrapper}>
 
                             <View style={singleCarStyles.infoLabelWrapper}>
                                 <Text style={singleCarStyles.infoLabel}>Коробка передач</Text>
@@ -840,9 +840,9 @@ export default class App extends Component {
                             <View>
                                 <Text style={singleCarStyles.infoValue}>{this.state.autoData?.transmission}</Text>
                             </View>
-                        </View>
+                        </View>}
 
-                        <View style={singleCarStyles.infoWrapper}>
+                        {this.state.autoData?.rudder !== 'Не указан' &&<View style={singleCarStyles.infoWrapper}>
 
                             <View style={singleCarStyles.infoLabelWrapper}>
                                 <Text style={singleCarStyles.infoLabel}>Руль</Text>
@@ -852,7 +852,7 @@ export default class App extends Component {
                                 <Text style={singleCarStyles.infoValue}>{this.state.autoData?.rudder} </Text>
                             </View>
 
-                        </View>
+                        </View>}
 
 
 

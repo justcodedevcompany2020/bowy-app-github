@@ -389,7 +389,6 @@ export default class AddCar extends Component {
             form.append("transmission", gearBoxValue);
             form.append("category_id", carCategoryValue);
 
-            console.log(regionCategoryValue, 'dwdwdw')
 
             await this.setState({
                 disable_button: true
@@ -412,9 +411,6 @@ export default class AddCar extends Component {
             })
                 .then(response => response.json())
                 .then(async (res) => {
-
-                    console.log(res, "res")
-
                     await this.setState({
                         disable_button: false
                     })
@@ -515,8 +511,24 @@ export default class AddCar extends Component {
                                 data={this.state.carCategoryItems}
                                 onSelect={(selectedItem, index) => {
 
-                                    console.log(selectedItem, index)
+                                    console.log(selectedItem.id, index)
 
+                                    if(selectedItem.id === 2 || selectedItem.id === 4 || selectedItem.id === 5){
+                                        console.log('ssssss')
+                                        this.setState({
+                                            carModelValue:'Не указан',
+                                            rudderValue:'Не указан',
+                                            bodyTypeValue:'Не указан'
+                                        })
+                                    }
+                                    if(selectedItem.id === 5){
+                                        this.setState({
+                                            carModelValue:'Не указан',
+                                            rudderValue:'Не указан',
+                                            gearBoxValue:'Не указан',
+                                            bodyTypeValue:'Не указан'
+                                        })
+                                    }
                                     this.setState({
                                         carCategoryValue: selectedItem.id
                                     })
@@ -632,7 +644,8 @@ export default class AddCar extends Component {
                                 // editable={!!this.state.cityListValue}
                             />
 
-
+                            {console.log(this.state.carCategoryValue)}
+                            {this.state.carCategoryValue  !== 2 && this.state.carCategoryValue  !== 4 && this.state.carCategoryValue  !== 5 &&
                             <SelectDropdown
                                 data={this.state.carModelItems}
                                 onSelect={(selectedItem, index) => {
@@ -657,7 +670,7 @@ export default class AddCar extends Component {
                                     backgroundColor: '#F0F4F8',
                                 }}
                                 buttonTextStyle={{ textAlign:'left', color: this.state.car_model_error ? 'red' : '#424A55', fontSize: 16}}
-                            />
+                            />}
 
 
 
@@ -680,7 +693,7 @@ export default class AddCar extends Component {
 
                         <View style={addCarStyle.characteristicsView}>
 
-                            <SelectDropdown
+                            {(this.state.carCategoryValue !== 2  && this.state.carCategoryValue !== 5)  && <SelectDropdown
                                 data={this.state.rudderItems}
                                 onSelect={(selectedItem, index) => {
                                     this.setState({
@@ -696,10 +709,10 @@ export default class AddCar extends Component {
                                 defaultButtonText={'Руль'}
                                 buttonStyle={{width: '100%', borderBottomWidth: 1, borderRadius: 0, borderWidth: 0, height: 60, borderColor: this.state.ruder_error ? 'red' : '#A2ABC2', backgroundColor: '#F0F4F8',}}
                                 buttonTextStyle={{ textAlign:'left', color: this.state.ruder_error ? 'red' : '#424A55', fontSize: 16}}
-                            />
+                            />}
 
 
-                            <SelectDropdown
+                            {this.state.carCategoryValue !== 5 &&<SelectDropdown
                                 data={this.state.gearBoxItem}
                                 onSelect={(selectedItem, index) => {
                                     this.setState({
@@ -716,10 +729,7 @@ export default class AddCar extends Component {
                                 buttonStyle={{width: '100%', borderBottomWidth: 1, borderRadius: 0, borderWidth: 0, height: 60, borderColor: this.state.gear_box_error ? 'red' : '#A2ABC2', backgroundColor: '#F0F4F8',}}
                                 buttonTextStyle={{ textAlign:'left', color:this.state.gear_box_error ? 'red' :  '#424A55', fontSize: 16}}
                             />
-
-
-
-
+                            }
 
                             <SelectDropdown
                                 data={this.state.carAgeItems}
@@ -747,7 +757,7 @@ export default class AddCar extends Component {
 
 
 
-                            <SelectDropdown
+                            {this.state.carCategoryValue !== 5 || this.state.carCategoryValue !== 4 &&<SelectDropdown
                                 data={this.state.bodyTypeItems}
                                 onSelect={(selectedItem, index) => {
 
@@ -765,7 +775,7 @@ export default class AddCar extends Component {
                                 defaultButtonText={'Тип кузова'}
                                 buttonStyle={{width: '100%', borderBottomWidth:0, borderRadius: 0, borderWidth: 0, height: 60, borderColor: this.state.body_type_error ? 'red' : '#A2ABC2', backgroundColor: '#F0F4F8',}}
                                 buttonTextStyle={{ textAlign:'left', color: this.state.body_type_error ? 'red' : '#424A55', fontSize: 16}}
-                            />
+                            />}
 
 
                         </View>
